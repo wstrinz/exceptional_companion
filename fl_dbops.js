@@ -1,7 +1,7 @@
 window.dbOperations = {
   updateOrIgnoreBranch: function(dbBranch, scraped) {
     if (dbBranch.isTerminal) {
-      return handleExistingTerminalBranch(dbBranch, scraped);
+      return dbOperations.handleExistingTerminalBranch(dbBranch, scraped);
     }
     else if(scraped.isSocial){
       if(dbBranch.isSocial){
@@ -30,10 +30,10 @@ window.dbOperations = {
 
     existingResult = _.find(dbBranch.results, equivName);
     if (!existingResult) {
-      return scrapeNewBranch(scraped, dbBranch);
+      return dbOperations.scrapeNewBranch(scraped, dbBranch)
     }
     else{
-      return mergeExistingBranch(dbBranch, scraped);
+      return dbOperations.mergeExistingBranch(dbBranch, scraped)
     }
   },
 
@@ -53,7 +53,7 @@ window.dbOperations = {
       if (_.filter(dbBranch.results, function(r) {
         return r.type === scraped.results[0].type;
       })) {
-        return mergeResult(r, scraped.results[0]);
+        return dbOperations.mergeResult(r, scraped.results[0]);
       } else {
         return r;
       }
