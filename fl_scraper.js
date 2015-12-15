@@ -5,8 +5,11 @@ fl.scraper = {
   isResult: function() {
     return !($('.quality_update_box').length === 0);
   },
+  isInvitation: function(){
+    return !!$('.externalInviteButton')[0];
+  },
   isSocial: function(){
-    return !!$('select#targetCharacterId')[0];
+    return !!$('select#targetCharacterId')[0] || fl.scraper.isInvitation();
   },
   isTerminal: function(){
     return (fl.scraper.isResult() || fl.scraper.isSocial());
