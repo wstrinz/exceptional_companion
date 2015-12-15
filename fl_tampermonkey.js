@@ -392,7 +392,10 @@ fl.annotator =
       cs = fl.annotator.branchColors
       switch dbBranch.results.length
         when 0
-          cs.unexplored
+          if dbBranch.isSocial
+            cs.social
+          else
+            cs.unexplored
         when 1
           if dbBranch.results[0].type == 'inevitable'
             cs.full
@@ -408,6 +411,7 @@ fl.annotator =
       partial: 'rgba(175, 190, 255, 0.42)'
       full: 'rgba(8, 214, 76, 0.16)'
       unknown: 'rgba(228, 0, 25, 0.20)'
+      social: 'rgba(8, 214, 76, 0.16)'
 
   annotateEvent: (eventId) ->
     eventEl = $j('.storylet').has("input[onclick='beginEvent(#{eventId});']")
