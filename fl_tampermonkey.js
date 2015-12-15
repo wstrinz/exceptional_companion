@@ -225,6 +225,7 @@ function evalCS(source) {
   eval(coffeescript.join("\n"));
 }
 
+
 evalCS(<><![CDATA[
 window.storyDB =
     events: {}

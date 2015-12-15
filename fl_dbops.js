@@ -24,18 +24,17 @@ window.dbOperations = {
 
   handleExistingTerminalBranch: function(dbBranch, scraped){
     var equivName, existingResult, mergeResult, newResults;
-      equivName = function(b) {
-        return b.title === scraped.results[0].title;
-      };
-
-      existingResult = _.find(dbBranch.results, equivName);
-      if (!existingResult) {
-        return scrapeNewBranch(scraped, dbBranch);
-      }
-      else{
-        return mergeExistingBranch(dbBranch, scraped);
-      }
+    equivName = function(b) {
+      return b.title === scraped.results[0].title;
     };
+
+    existingResult = _.find(dbBranch.results, equivName);
+    if (!existingResult) {
+      return scrapeNewBranch(scraped, dbBranch);
+    }
+    else{
+      return mergeExistingBranch(dbBranch, scraped);
+    }
   },
 
   scrapeNewBranch: function(scraped, dbBranch){

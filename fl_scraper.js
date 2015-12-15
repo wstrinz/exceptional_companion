@@ -6,10 +6,10 @@ fl.scraper = {
     return !($('.quality_update_box').length === 0);
   },
   isSocial: function(){
-    return !$('select#targetCharacterId')[0]);
+    return !$('select#targetCharacterId')[0];
   },
   isTerminal: function(){
-    return (isResult() || isSocial());
+    return (fl.scraper.isResult() || fl.scraper.isSocial());
   },
   isSuccess: function() {
     return !!$('div.quality_update_box:contains("succeeded")')[0];
