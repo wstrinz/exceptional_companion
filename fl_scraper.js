@@ -6,7 +6,7 @@ fl.scraper = {
     return !($('.quality_update_box').length === 0);
   },
   isSocial: function(){
-    return !$('select#targetCharacterId')[0];
+    return !!$('select#targetCharacterId')[0];
   },
   isTerminal: function(){
     return (fl.scraper.isResult() || fl.scraper.isSocial());
