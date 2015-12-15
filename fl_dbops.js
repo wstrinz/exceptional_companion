@@ -1,85 +1,118 @@
 window.dbOperations = {
   updateOrIgnoreBranch: function(dbBranch, scraped) {
-    var equivName, existingResult, mergeResult, newResults;
     if (dbBranch.isTerminal) {
-      equivName = function(b) {
-        return b.title === scraped.results[0].title;
-      };
-      existingResult = _.find(dbBranch.results, equivName);
-      if (!existingResult) {
-        console.log('added new result', scraped.results[0]);
-        dbBranch.results = dbBranch.results.concat(scraped.results);
+      return handleExistingTerminalBranch(dbBranch, scraped);
+    }
+    else if(scraped.isSocial){
+      if(dbBranch.isSocial){
+        console.log("ignoring social matching branch");
+      }
+      else{
+        dbBranch.isSocial = true
+
         return branchDb.put(dbBranch).then(function(resp) {
-          return console.log('updated branch', resp);
+          return console.log('updated branch to be social', resp);
         })["catch"](function(err) {
           return console.log('failed to update branch!', err);
         });
-      } else {
-        mergeResult = function(r1, r2) {
-          var cloneR, newItems;
-          cloneR = _.cloneDeep(r1);
-          cloneR.items = _.map(cloneR.items, function(i) {
-            var inR2;
-            inR2 = _.find(r2.items, function(i2) {
-              return i2.name === i.name;
-            });
-            if (!(_.isArray(i.count))) {
-              i.count = [i.count, i.count];
-            }
-            i.count = _.map(i.count, function(c) {
-              if (_.isString(c)) {
-                return parseInt(c);
-              } else {
-                return c;
-              }
-            });
-            if (inR2) {
-              if (_.isArray(i.count)) {
-                if (i.count[0] > inR2.count[0]) {
-                  i.count[0] = inR2.count[0];
-                } else if (i.count[1] < inR2.count[1]) {
-                  i.count[1] = inR2.count[1];
-                }
-              }
-            }
-            return i;
-          });
-          newItems = _.filter(r2.items, function(newI) {
-            return !(_.any(cloneR.items, function(oldI) {
-              return oldI.name === newI.name;
-            }));
-          });
-          cloneR.items = cloneR.items.concat(newItems);
-          cloneR.qualities = _.filter(cloneR.qualities, function(q) {
-            return _.isObject(q);
-          });
-          cloneR.qualities = cloneR.qualities.concat(_.filter(r2.qualities, function(newQ) {
-            return !(_.any(cloneR.qualities, function(oldQ) {
-              return oldQ.quality === newQ.quality;
-            }));
-          }));
-          return cloneR;
-        };
-        newResults = _.map(dbBranch.results, function(r) {
-          if (_.filter(dbBranch.results, function(r) {
-            return r.type === scraped.results[0].type;
-          })) {
-            return mergeResult(r, scraped.results[0]);
-          } else {
-            return r;
-          }
-        });
-        dbBranch.results = newResults;
-        return branchDb.put(dbBranch).then(function(resp) {
-          return console.log('updated known result', scraped.results[0], newResults);
-        })["catch"](function(err) {
-          return console.log('failed to update known branch!', err);
-        });
       }
-    } else {
+    }
+    else {
       return console.log('ignoring possibly different non-result branch for now', scraped);
     }
-  }
+  },
+
+  handleExistingTerminalBranch: function(dbBranch, scraped){
+    var equivName, existingResult, mergeResult, newResults;
+      equivName = function(b) {
+        return b.title === scraped.results[0].title;
+      };
+
+      existingResult = _.find(dbBranch.results, equivName);
+      if (!existingResult) {
+        return scrapeNewBranch(scraped, dbBranch);
+      }
+      else{
+        return mergeExistingBranch(dbBranch, scraped);
+      }
+    };
+  },
+
+  scrapeNewBranch: function(scraped, dbBranch){
+    console.log('added new result', scraped.results[0]);
+    dbBranch.results = dbBranch.results.concat(scraped.results);
+    dbBranch.isSocial = scraped.isSocial;
+    return branchDb.put(dbBranch).then(function(resp) {
+      return console.log('updated branch', resp);
+    })["catch"](function(err) {
+      return console.log('failed to update branch!', err);
+    });
+  },
+
+  mergeExistingBranch: function(dbBranch, scraped){
+    newResults = _.map(dbBranch.results, function(r) {
+      if (_.filter(dbBranch.results, function(r) {
+        return r.type === scraped.results[0].type;
+      })) {
+        return mergeResult(r, scraped.results[0]);
+      } else {
+        return r;
+      }
+    });
+    dbBranch.results = newResults;
+    return branchDb.put(dbBranch).then(function(resp) {
+      return console.log('updated known result', scraped.results[0], newResults);
+    })["catch"](function(err) {
+      return console.log('failed to update known branch!', err);
+    });
+  },
+
+  mergeResult: function(r1, r2) {
+      var cloneR, newItems;
+      cloneR = _.cloneDeep(r1);
+      cloneR.items = _.map(cloneR.items, function(i) {
+        var inR2;
+        inR2 = _.find(r2.items, function(i2) {
+          return i2.name === i.name;
+        });
+        if (!(_.isArray(i.count))) {
+          i.count = [i.count, i.count];
+        }
+        i.count = _.map(i.count, function(c) {
+          if (_.isString(c)) {
+            return parseInt(c);
+          } else {
+            return c;
+          }
+        });
+        if (inR2) {
+          if (_.isArray(i.count)) {
+            if (i.count[0] > inR2.count[0]) {
+              i.count[0] = inR2.count[0];
+            } else if (i.count[1] < inR2.count[1]) {
+              i.count[1] = inR2.count[1];
+            }
+          }
+        }
+        return i;
+      });
+      newItems = _.filter(r2.items, function(newI) {
+        return !(_.any(cloneR.items, function(oldI) {
+          return oldI.name === newI.name;
+        }));
+      });
+      cloneR.items = cloneR.items.concat(newItems);
+      cloneR.qualities = _.filter(cloneR.qualities, function(q) {
+        return _.isObject(q);
+      });
+      cloneR.qualities = cloneR.qualities.concat(_.filter(r2.qualities, function(newQ) {
+        return !(_.any(cloneR.qualities, function(oldQ) {
+          return oldQ.quality === newQ.quality;
+        }));
+      }));
+      return cloneR;
+    },
+
 };
 
 window.dbQueries = {
@@ -156,10 +189,10 @@ window.dbQueries = {
 
         _.each(_.range(nToShow), function(i) {
           if(best[i])
-            console.log('#' + i + ' best: ' + itemAmt(best[i].doc, target), best[i].doc);
+          console.log('#' + i + ' best: ' + itemAmt(best[i].doc, target), best[i].doc);
         })
       }
-    
+
     }).catch(function (err) {
       console.log('err', err)
     });

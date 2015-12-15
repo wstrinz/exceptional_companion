@@ -5,6 +5,12 @@ fl.scraper = {
   isResult: function() {
     return !($('.quality_update_box').length === 0);
   },
+  isSocial: function(){
+    return !$('select#targetCharacterId')[0]);
+  },
+  isTerminal: function(){
+    return (isResult() || isSocial());
+  },
   isSuccess: function() {
     return !!$('div.quality_update_box:contains("succeeded")')[0];
   },
@@ -129,14 +135,16 @@ fl.scraper = {
   scrapeEvent: function() {
     return {
       title: fl.scraper.eventTitle(),
-      isTerminal: fl.scraper.isResult(),
+      isTerminal: fl.scraper.isTerminal(),
+      isSocial: fl.scraper.isSocial(),
       results: fl.scraper.getResult(),
       branches: fl.scraper.branchesForEvent()
     };
   },
   scrapeBranch: function() {
     return {
-      isTerminal: fl.scraper.isResult(),
+      isTerminal: fl.scraper.isTerminal(),
+      isSocial: fl.scraper.isSocial(),
       subBranches: fl.scraper.branchesForEvent(),
       results: fl.scraper.getResult()
     };

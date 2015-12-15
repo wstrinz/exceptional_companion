@@ -362,7 +362,10 @@ fl.annotator =
     shortDesc: (dbBranch) ->
       switch dbBranch.results.length
         when 0
-          "Unknown"
+          if dbBranch.isSocial
+            "Social"
+          else
+            "Unknown"
         when 1
           if dbBranch.results[0].type == 'inevitable'
             'Inevitable'
