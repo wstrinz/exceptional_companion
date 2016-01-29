@@ -1,26 +1,27 @@
+/* global fl, $, _ */
 fl.scraper = {
-  eventTitle: function() {
+  eventTitle: function () {
     return $('div.storylet_flavour_text h3').text().trim();
   },
-  isResult: function() {
+  isResult: function () {
     return !($('.quality_update_box').length === 0);
   },
-  isInvitation: function(){
+  isInvitation: function () {
     return !!$('.externalInviteButton')[0];
   },
-  isSocial: function(){
+  isSocial: function () {
     return !!$('select#targetCharacterId')[0] || fl.scraper.isInvitation();
   },
-  isTerminal: function(){
+  isTerminal: function () {
     return (fl.scraper.isResult() || fl.scraper.isSocial());
   },
-  isSuccess: function() {
+  isSuccess: function () {
     return !!$('div.quality_update_box:contains("succeeded")')[0];
   },
-  isFail: function() {
+  isFail: function () {
     return !!$('div.quality_update_box:contains("failed")')[0];
   },
-  isInevitable: function() {
+  isInevitable: function () {
     return this.isResult() && !(this.isSuccess() || this.isFail());
   },
   isLuck: function() {
@@ -52,8 +53,8 @@ fl.scraper = {
   },
   branchesForEvent: function() {
     var branchEls, getIds;
-    getIds = function(els) {
-      return _.map(els, function(el) {
+    getIds = function (els) {
+      return _.map(els, function (el) {
         return el.id.match(/branch(\d+)/)[1];
       });
     };
@@ -67,9 +68,9 @@ fl.scraper = {
   branchTitle: function(id) {
     return $('#branch' + id + ' h5').text().trim();
   },
-    updatedQualities: function() {
+  updatedQualities: function () {
     var extractQuality, qualityEls;
-    extractQuality = function(e) {
+    extractQuality = function (e) {
       var eText, matches, regexes, theRegex;
       regexes = {
         lostGained: {
@@ -89,7 +90,7 @@ fl.scraper = {
         }
       };
       eText = $(e).text();
-      theRegex = _.find(regexes, function(r) {
+      theRegex = _.find(regexes, function (r) {
         return eText.match(r.regex);
       });
       if (theRegex) {
@@ -105,23 +106,23 @@ fl.scraper = {
     qualityEls = $('div.quality_update_box p');
     return _.compact(_.map(qualityEls, extractQuality));
   },
-  updatedItems: function() {
+  updatedItems: function () {
     var extractionRegex, updateEls;
     extractionRegex = /You\'ve (lost|gained) (\d+) x ([^(]+)/;
     updateEls = $('div.quality_update_box p');
-    updateEls = _.filter(updateEls, function(el) {
+    updateEls = _.filter(updateEls, function (el) {
       return $(el).text().match(extractionRegex);
     });
-    return _.map(updateEls, function(i) {
-      matched = $(i).text().match(extractionRegex)
+    return _.map(updateEls, function (i) {
+      var matched = $(i).text().match(extractionRegex);
       return {
         name: matched[3].trim(),
-        count: [parseInt(matched[2]), parseInt(matched[2])],
+        count: [parseInt(matched[2], 10), parseInt(matched[2], 10)],
         direction: matched[1]
       };
     });
   },
-  getResult: function() {
+  getResult: function () {
     if (!fl.scraper.isResult()) {
       return [];
     } else {

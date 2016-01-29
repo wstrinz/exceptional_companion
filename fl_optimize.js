@@ -1,3 +1,5 @@
+/* global $ */
+
 String.prototype.trim = function()
 {
   return String(this).replace(/^\s+|\s+$/g, '');
@@ -5,24 +7,24 @@ String.prototype.trim = function()
 
 var fl = {
   util: {
-    clone: function(obj) {
+    clone: function (obj) {
       return JSON.parse(JSON.stringify(obj));
     },
-    iShift: function(obj) {
+    iShift: function (obj) {
       var n = this.clone(obj);
       n.shift();
       return n;
     },
-    
-    waitForAjax: function(interval) {
+
+    waitForAjax: function (interval) {
       interval = interval || 0;
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         var pollForAjax;
-        pollForAjax = function(interval) {
+        pollForAjax = function (interval) {
           if ($.active === 0) {
-            resolve("instant");
+            resolve('instant');
           } else {
-            return setTimeout(function() {
+            return setTimeout(function () {
               return pollForAjax(interval);
             }, interval);
           }
@@ -30,24 +32,23 @@ var fl = {
         return pollForAjax(interval);
       });
     },
-    
-    waitForElementToDisplay: function(selector, time, cb) {
-        if(document.querySelector(selector)!=null) {
-            cb();
-        }
-        else {
-            setTimeout(function() {
-                fl.util.waitForElementToDisplay(selector, time, cb);
-            }, time);
-        }
+
+    waitForElementToDisplay: function (selector, time, cb) {
+      if (document.querySelector(selector) != null) {
+        cb();
+      } else {
+        setTimeout(function () {
+          fl.util.waitForElementToDisplay(selector, time, cb);
+        }, time);
+      }
     },
 
-    maxBy: function(arr, fn, init) {
+    maxBy: function (arr, fn, init) {
       var best = null;
       var maxVal = init || 0;
-      $.map(arr, function(obj){
+      $.map(arr, function (obj){
         var test = fn(obj);
-        if(test > maxVal){
+        if(test > maxVal) {
           best = obj;
           maxVal = test;
         }
@@ -56,7 +57,7 @@ var fl = {
       return best;
     },
   },
-  
+
   linkAttrs: function() {
     $('#infoBarQImage209 > img').live('click', fl.cw);
     $('#infoBarQImage210 > img').live('click', fl.cs);
@@ -91,19 +92,21 @@ var fl = {
       attrs = fl.parseAttributes(textEl.textContent);
     else
       attrs = {};
-      
+
     return attrs[attribute] || 0;
   },
-  
+
   bestOfType: function(category, attribute) {
     var currentVal = fl.equippedValue(category, attribute);
     var selector = '#InvCat-' + category + ' a[onclick^="adoptThing"]';
-    var items = $.map($(selector), function(el){
-      var textEl = $(el).find('span strong')[1]
-      if(textEl)
-        attrs = fl.parseAttributes(textEl.textContent)
-      else
-        attrs = {}
+    var items = $.map($(selector), function (el) {
+      var textEl = $(el).find('span strong')[1];
+      var attrs;
+      if (textEl) {
+        attrs = fl.parseAttributes(textEl.textContent);
+      } else {
+        attrs = {};
+      }
 
       return {el: el,
               attrs: attrs};
@@ -121,7 +124,7 @@ var fl = {
       $('#meTab').click();
     }
 
-    
+
     this.util.waitForElementToDisplay('#inventory', 500, function(){
       var categories = ['Gloves', 'Hat', 'Clothing', 'Weapon', 'Boots', 'Companion'];
       $.map(categories, function(cat) {
@@ -130,7 +133,7 @@ var fl = {
           best.el.click();
         return best;
       });
-      
+
       if(goBackToStory){
         fl.util.waitForAjax().then(function(){
           console.log('going back');
@@ -152,12 +155,12 @@ var fl = {
   cw: function(){
     fl.chooseBest('Watchful');
   },
-  
+
   tryAgain: function(){
     $('input[value="TRY THIS AGAIN"]').click()
   },
   chooseStorylet: function(name){
-    $j('div.storylet:contains("' + name + '")').find('div.go input').click() 
+    $j('div.storylet:contains("' + name + '")').find('div.go input').click()
   },
   enhancePage: function(){
     fl.linkAttrs();
