@@ -12,12 +12,19 @@
 // @require https://cdn.rawgit.com/jprichardson/string.js/master/lib/string.min.js
 // @require https://raw.githubusercontent.com/caldwell/renderjson/master/renderjson.js
 // @require http://code.jquery.com/jquery-1.11.3.min.js
+// @require https://raw.githubusercontent.com/jackmoore/colorbox/master/jquery.colorbox-min.js
 // @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_optimize.js
 // @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_scraper.js
 // @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_dbops.js
 
 // ==/UserScript==
 window.$j = jQuery.noConflict(true);
+
+var link = window.document.createElement('link');
+link.rel = 'stylesheet';
+link.type = 'text/css';
+link.href = 'https://rawgit.com/jackmoore/colorbox/master/example1/colorbox.css';
+document.getElementsByTagName("HEAD")[0].appendChild(link);
 
 var remoteDb; //set to address of a couchdb instance for replication
 branchDb = new PouchDB('branches');
