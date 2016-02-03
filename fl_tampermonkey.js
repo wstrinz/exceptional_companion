@@ -30,60 +30,6 @@ qualitiesDb = new PouchDB('qualities');
 
 window.qs = dbQueries;
 
-fl.storyletFor = function(title) { return $j('div.storylet:contains("' + title + '")') }
-
-fl.challengElForStorylet = function(storylet){ return storylet.find('.challenge.cf') }
-
-fl.qualityForStorylet = function(title) {
-  var challengeTxt = fl.challengElForStorylet(fl.storyletFor(title)).text();
-
-  if(challengeTxt && challengeTxt.length > 0){
-     var lines = challengeTxt.split("\n")
-     var quality = _.map(lines, function(s){return s.trim()}).join(" ").match(/Your (\w+) quality gives you a .* chance of success/)[1]
-     return quality;
-  }
-  return undefined
-}
-
-fl.chooseBest = function(attribute) {
-    return new Promise(function(resolve, reject){
-      var goBackToStory = false;
-      if($('#tabnav > li > a.selected').text().trim() != "MYSELF"){
-        goBackToStory = true;
-        $('#meTab').click();
-      }
-
-
-      fl.util.waitForElementToDisplay('#inventory', 500, function(){
-        var categories = ['Gloves', 'Hat', 'Clothing', 'Weapon', 'Boots', 'Companion'];
-        $.map(categories, function(cat) {
-          var best = fl.bestOfType(cat, attribute);
-          if(best)
-            best.el.click();
-          return best;
-        });
-
-        fl.util.waitForAjax().then(function(){
-          if(goBackToStory){
-            console.log('going back');
-            $('#storyTab').click();
-          }
-          fl.util.waitForAjax().then(resolve);
-        });
-      });
-    });
-}
-
-fl.optThenChoose = function(title) {
-  var quality = fl.qualityForStorylet(title);
-  if(quality){
-    // probably should have a whitelist/ordering etc
-    fl.chooseBest(quality).then(function(){
-      fl.chooseStorylet(title);
-    })
-  }
-}
-
 fl.autoPickCard = function(){
   var actOnCard = function(eventId){
     return new Promise(function(resolve, reject){
@@ -102,7 +48,7 @@ fl.autoPickCard = function(){
               cardEl = $j('#cards li a').has("input[onclick='beginEvent(" + eventId + ");']").children('input');
               $(cardEl).click();
               fl.util.waitForAjax().then(function() {
-                fl.chooseStorylet(dbEvt.preferredChoice);
+                fl.optThenChoose(dbEvt.preferredChoice);
                 fl.util.waitForAjax().then(function() {
                   $j('input[value="ONWARDS!"]').click();
                   fl.util.waitForAjax().then(function(){
@@ -185,6 +131,60 @@ fl.autoCards = function(){
       })
     }
   })
+}
+
+fl.storyletFor = function(title) { return $j('div.storylet:contains("' + title + '")') }
+
+fl.challengElForStorylet = function(storylet){ return storylet.find('.challenge.cf') }
+
+fl.qualityForStorylet = function(title) {
+  var challengeTxt = fl.challengElForStorylet(fl.storyletFor(title)).text();
+
+  if(challengeTxt && challengeTxt.length > 0){
+     var lines = challengeTxt.split("\n")
+     var quality = _.map(lines, function(s){return s.trim()}).join(" ").match(/Your (\w+) quality gives you a .* chance of success/)[1]
+     return quality;
+  }
+  return undefined
+}
+
+fl.chooseBest = function(attribute) {
+    return new Promise(function(resolve, reject){
+      var goBackToStory = false;
+      if($('#tabnav > li > a.selected').text().trim() != "MYSELF"){
+        goBackToStory = true;
+        $('#meTab').click();
+      }
+
+
+      fl.util.waitForElementToDisplay('#inventory', 500, function(){
+        var categories = ['Gloves', 'Hat', 'Clothing', 'Weapon', 'Boots', 'Companion'];
+        $.map(categories, function(cat) {
+          var best = fl.bestOfType(cat, attribute);
+          if(best)
+            best.el.click();
+          return best;
+        });
+
+        fl.util.waitForAjax().then(function(){
+          if(goBackToStory){
+            console.log('going back');
+            $('#storyTab').click();
+          }
+          fl.util.waitForAjax().then(resolve);
+        });
+      });
+    });
+}
+
+fl.optThenChoose = function(title) {
+  var quality = fl.qualityForStorylet(title);
+  if(quality){
+    // probably should have a whitelist/ordering etc
+    fl.chooseBest(quality).then(function(){
+      fl.chooseStorylet(title);
+    })
+  }
 }
 
 var captureSubmitBranchChoice = function(){
