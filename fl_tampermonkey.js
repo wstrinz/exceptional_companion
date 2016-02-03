@@ -55,11 +55,13 @@ fl.autoPickCard = function(){
               cardEl = $j('#cards li a').has("input[onclick='beginEvent(" + eventId + ");']").children('input');
               $(cardEl).click();
               fl.util.waitForAjax().then(function() {
-                fl.optThenChoose(dbEvt.preferredChoice);
-                fl.util.waitForAjax().then(function() {
-                  $j('input[value="ONWARDS!"]').click();
-                  fl.util.waitForAjax().then(function(){
-                    resolve({acted: true, reason: "picked " + dbEvt.preferredChoice + " for " + dbEvt.title + " (" + dbEvt._id + ")"});
+                fl.optThenChoose(dbEvt.preferredChoice).then(function(){
+                  fl.util.waitForAjax().then(function() {
+                    console.log("onwards!");
+                    $j('input[value="ONWARDS!"]').click();
+                    fl.util.waitForAjax().then(function(){
+                      resolve({acted: true, reason: "picked " + dbEvt.preferredChoice + " for " + dbEvt.title + " (" + dbEvt._id + ")"});
+                    });
                   });
                 });
               });
@@ -184,14 +186,21 @@ fl.chooseBest = function(attribute) {
     });
 }
 
+
 fl.optThenChoose = function(title) {
-  var quality = fl.qualityForStorylet(title);
-  if(quality){
-    // probably should have a whitelist/ordering etc
-    fl.chooseBest(quality).then(function(){
-      fl.chooseStorylet(title);
-    })
-  }
+  return new Promise(function(resolve, reject){
+    var quality = fl.qualityForStorylet(title);
+    if(quality){
+      // probably should have a whitelist/ordering etc
+      fl.chooseBest(quality).then(function(){
+        console.log("done choosing!")
+        fl.chooseStorylet(title);
+        fl.waitForAjax().then(function(){
+          resolve("chose");
+        })
+      })
+    }
+  })
 }
 
 var captureSubmitBranchChoice = function(){
