@@ -195,7 +195,7 @@ fl.optThenChoose = function(title) {
       fl.chooseBest(quality).then(function(){
         console.log("done choosing!")
         fl.chooseStorylet(title);
-        fl.waitForAjax().then(function(){
+        fl.util.waitForAjax().then(function(){
           resolve("chose");
         })
       })
