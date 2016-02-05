@@ -199,6 +199,11 @@ fl.optThenChoose = function(title) {
           resolve("chose");
         })
       })
+    } else {
+      fl.chooseStorylet(title);
+      fl.util.waitForAjax().then(function(){
+        resolve("chose");
+      })
     }
   })
 }
