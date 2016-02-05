@@ -146,17 +146,6 @@ fl.storyletFor = function(title) { return $j('div.storylet:contains("' + title +
 
 fl.challengElForStorylet = function(storylet){ return storylet.find('.challenge.cf') }
 
-fl.qualityForStorylet = function(title) {
-  var challengeTxt = fl.challengElForStorylet(fl.storyletFor(title)).text();
-
-  if(challengeTxt && challengeTxt.length > 0){
-     var lines = challengeTxt.split("\n")
-     var quality = _.map(lines, function(s){return s.trim()}).join(" ").match(/Your (\w+) quality gives you a .* chance of success/)[1]
-     return quality;
-  }
-  return undefined
-}
-
 fl.chooseBest = function(attribute) {
     return new Promise(function(resolve, reject){
       var goBackToStory = false;
@@ -186,11 +175,27 @@ fl.chooseBest = function(attribute) {
     });
 }
 
+fl.qualityAndOddsForStorylet = function(title) {
+  var challengeTxt = fl.challengElForStorylet(fl.storyletFor(title)).text();
+
+  if(challengeTxt && challengeTxt.length > 0){
+     var lines = challengeTxt.split("\n")
+     var result = _.map(lines, function(s){return s.trim()}).join(" ").match(/Your (\w+) quality gives you a (.*)% chance of success/);
+     var quality = result[1];
+     var odds = result[2];
+     return [quality, odds];
+  }
+  return undefined
+}
 
 fl.optThenChoose = function(title) {
   return new Promise(function(resolve, reject){
-    var quality = fl.qualityForStorylet(title);
-    if(quality){
+    var qanda = fl.qualityAndOddsForStorylet(title) || [];
+    var quality = qanda[0];
+    var odds = qanda[1];
+    var tryOpt = quality && odds && !(odds == "100");
+
+    if(tryOpt){
       // probably should have a whitelist/ordering etc
       fl.chooseBest(quality).then(function(){
         console.log("done choosing!")
