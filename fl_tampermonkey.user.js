@@ -13,9 +13,9 @@
 // @require https://raw.githubusercontent.com/caldwell/renderjson/master/renderjson.js
 // @require http://code.jquery.com/jquery-1.11.3.min.js
 // @require https://raw.githubusercontent.com/jackmoore/colorbox/master/jquery.colorbox-min.js
-// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_optimize.js
-// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_scraper.js
-// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_dbops.js
+// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_optimize.js?v=3
+// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_scraper.js?v=3
+// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_dbops.js?v=3
 
 // ==/UserScript==
 window.$j = jQuery.noConflict(true);
