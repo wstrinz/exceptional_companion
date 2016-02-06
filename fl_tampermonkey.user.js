@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FL Optimize
 // @namespace    http://github.com/wstrinz/exceptional_companion
-// @version      0.2
+// @version      0.3
 // @description  Helps with fl
 // @author       Will Strinz
 // @match        http://fallenlondon.storynexus.com/Gap/*
@@ -153,8 +153,6 @@ function evalCS(source) {
 
   eval(coffeescript.join("\n"));
 }
-
-
 
 var inline_src = (<><![CDATA[
 window.storyDB =
