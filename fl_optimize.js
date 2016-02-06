@@ -295,13 +295,13 @@ var fl = {
       }
     });
   },
-  
+
   optThenChoose: function(title) {
     return new Promise(function(resolve, reject){
       var qanda = fl.scraper.qualityAndOddsForStorylet(title) || [];
       var quality = qanda[0];
       var odds = qanda[1];
-      var tryOpt = quality && odds && not (odds == "100");
+      var tryOpt = quality && odds && (odds != "100");
 
       if(tryOpt){
         // probably should have a whitelist/ordering etc
