@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         FL Optimize
-// @namespace    http://strinz.come/will
-// @version      0.1
-// @description  first the script loading, then the world
-// @author       You
+// @namespace    http://github.com/wstrinz/exceptional_companion
+// @version      0.2
+// @description  Helps with fl
+// @author       Will Strinz
 // @match        http://fallenlondon.storynexus.com/Gap/*
 // @grant        none
 // @require https://github.com/pouchdb/pouchdb/releases/download/4.0.1/pouchdb-4.0.1.min.js
@@ -93,8 +93,8 @@ fl.qualityAndOddsForStorylet = function(title) {
   var challengeTxt = fl.challengElForStorylet(fl.storyletFor(title)).text();
 
   if(challengeTxt && challengeTxt.length > 0){
-     var lines = challengeTxt.split("\n")
-     var result = _.map(lines, function(s){return s.trim()}).join(" ").match(/Your (\w+) quality gives you a (.*)% chance of success/);
+     var lines = challengeTxt.split("\n");
+     var result = _.map(lines, function(s){return s.trim();}).join(" ").match(/Your (\w+) quality gives you a (.*)% chance of success/);
      var quality = result[1];
      var odds = result[2];
      return [quality, odds];
