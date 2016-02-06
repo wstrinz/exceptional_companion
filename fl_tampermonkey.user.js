@@ -29,8 +29,17 @@ document.getElementsByTagName("HEAD")[0].appendChild(link);
 var remoteDb; //set to address of a couchdb instance for replication
 var remoteAddress = localStorage.getItem("remoteDb");
 if(remoteAddress == "local"){
+  console.log("using local db");
 } else {
-  remoteDb = remoteAddress;
+  var setAddress = prompt("Address for remote DB to sync with (leave blank use local db)");
+  if(setAddress){
+    localStorage.setItem("remoteDb", setAddress);
+    remoteDb = setAddress;
+  }
+  else {
+    localStorage.setItem("remoteDb", "local");
+    remoteDb = "local";
+  }
 }
 
 branchDb = new PouchDB('branches');
