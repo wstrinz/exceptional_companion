@@ -155,5 +155,18 @@ fl.scraper = {
   },
   currentLocation: function() {
     return $('#topMap img:not([class])').attr('alt');
+  },
+
+  qualityAndOddsForStorylet: function(title) {
+    var challengeTxt = fl.challengElForStorylet(fl.storyletFor(title)).text();
+
+    if(challengeTxt && challengeTxt.length > 0){
+      var lines = challengeTxt.split("\n");
+      var result = _.map(lines, function(s){return s.trim();}).join(" ").match(/Your (\w+) quality gives you a (.*)% chance of success/);
+      var quality = result[1];
+      var odds = result[2];
+      return [quality, odds];
+    }
+    return undefined;
   }
 };

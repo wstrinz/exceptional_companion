@@ -118,28 +118,31 @@ var fl = {
   },
 
   chooseBest: function(attribute) {
-    var goBackToStory = false;
-    if($('#tabnav > li > a.selected').text().trim() != "MYSELF"){
-      goBackToStory = true;
-      $('#meTab').click();
-    }
-
-
-    this.util.waitForElementToDisplay('#inventory', 500, function(){
-      var categories = ['Gloves', 'Hat', 'Clothing', 'Weapon', 'Boots', 'Companion'];
-      $.map(categories, function(cat) {
-        var best = fl.bestOfType(cat, attribute);
-        if(best)
-          best.el.click();
-        return best;
-      });
-
-      if(goBackToStory){
-        fl.util.waitForAjax().then(function(){
-          console.log('going back');
-          $('#storyTab').click();
-        });
+    return new Promise(function(resolve, reject){
+      var goBackToStory = false;
+      if($('#tabnav > li > a.selected').text().trim() != "MYSELF"){
+        goBackToStory = true;
+        $('#meTab').click();
       }
+
+
+      fl.util.waitForElementToDisplay('#inventory', 500, function(){
+        var categories = ['Gloves', 'Hat', 'Clothing', 'Weapon', 'Boots', 'Companion'];
+        $.map(categories, function(cat) {
+          var best = fl.bestOfType(cat, attribute);
+          if(best)
+          best.el.click();
+          return best;
+        });
+
+        fl.util.waitForAjax().then(function(){
+          if(goBackToStory){
+            console.log('going back');
+            $('#storyTab').click();
+          }
+          fl.util.waitForAjax().then(resolve);
+        });
+      });
     });
   },
 
@@ -291,8 +294,32 @@ var fl = {
         });
       }
     });
-  }
+  },
+  
+  optThenChoose: function(title) {
+    return new Promise(function(resolve, reject){
+      var qanda = fl.scraper.qualityAndOddsForStorylet(title) || [];
+      var quality = qanda[0];
+      var odds = qanda[1];
+      var tryOpt = quality && odds && not (odds == "100");
 
+      if(tryOpt){
+        // probably should have a whitelist/ordering etc
+        fl.chooseBest(quality).then(function(){
+          console.log("done choosing!");
+          fl.chooseStorylet(title);
+          fl.util.waitForAjax().then(function(){
+            resolve("chose");
+          });
+        });
+      } else {
+        fl.chooseStorylet(title);
+        fl.util.waitForAjax().then(function(){
+          resolve("chose");
+        });
+      }
+    });
+  }
 };
 
 window.fl = fl;

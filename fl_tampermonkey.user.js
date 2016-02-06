@@ -60,101 +60,34 @@ fl.storyletFor = function(title) { return $j('div.storylet:contains("' + title +
 
 fl.challengElForStorylet = function(storylet){ return storylet.find('.challenge.cf'); };
 
-fl.chooseBest = function(attribute) {
-    return new Promise(function(resolve, reject){
-      var goBackToStory = false;
-      if($('#tabnav > li > a.selected').text().trim() != "MYSELF"){
-        goBackToStory = true;
-        $('#meTab').click();
-      }
-
-
-      fl.util.waitForElementToDisplay('#inventory', 500, function(){
-        var categories = ['Gloves', 'Hat', 'Clothing', 'Weapon', 'Boots', 'Companion'];
-        $.map(categories, function(cat) {
-          var best = fl.bestOfType(cat, attribute);
-          if(best)
-            best.el.click();
-          return best;
-        });
-
-        fl.util.waitForAjax().then(function(){
-          if(goBackToStory){
-            console.log('going back');
-            $('#storyTab').click();
-          }
-          fl.util.waitForAjax().then(resolve);
-        });
-      });
-    });
-};
-
-fl.qualityAndOddsForStorylet = function(title) {
-  var challengeTxt = fl.challengElForStorylet(fl.storyletFor(title)).text();
-
-  if(challengeTxt && challengeTxt.length > 0){
-     var lines = challengeTxt.split("\n");
-     var result = _.map(lines, function(s){return s.trim();}).join(" ").match(/Your (\w+) quality gives you a (.*)% chance of success/);
-     var quality = result[1];
-     var odds = result[2];
-     return [quality, odds];
-  }
-  return undefined
-}
-
-fl.optThenChoose = function(title) {
-  return new Promise(function(resolve, reject){
-    var qanda = fl.qualityAndOddsForStorylet(title) || [];
-    var quality = qanda[0];
-    var odds = qanda[1];
-    var tryOpt = quality && odds && !(odds == "100");
-
-    if(tryOpt){
-      // probably should have a whitelist/ordering etc
-      fl.chooseBest(quality).then(function(){
-        console.log("done choosing!")
-        fl.chooseStorylet(title);
-        fl.util.waitForAjax().then(function(){
-          resolve("chose");
-        })
-      })
-    } else {
-      fl.chooseStorylet(title);
-      fl.util.waitForAjax().then(function(){
-        resolve("chose");
-      })
-    }
-  })
-}
-
 var captureSubmitBranchChoice = function(){
-    var oldFun = SubmitBranchChoice;
-    SubmitBranchChoice = function(form){
-      var branchId = $j(form).find('input[name="branchId"]').val();
-      if(branchId){
-          title = fl.scraper.branchTitle(branchId);
-          var ret = oldFun(form);
-          fl.util.waitForAjax().then(function(){
-              upsertBranch(title, parseInt(branchId));
-          });
-          return false;
-      }
-      else {
-          oldFun(form);
-          return false;
-      }
+  var oldFun = SubmitBranchChoice;
+  SubmitBranchChoice = function(form){
+    var branchId = $j(form).find('input[name="branchId"]').val();
+    if(branchId){
+      title = fl.scraper.branchTitle(branchId);
+      var ret = oldFun(form);
+      fl.util.waitForAjax().then(function(){
+        upsertBranch(title, parseInt(branchId));
+      });
+      return false;
     }
-}
+    else {
+      oldFun(form);
+      return false;
+    }
+  };
+};
 
 var setEventChoice = function(eventId, choice) {
   eventDb.get(eventId).then(function(evt){
     evt.preferredChoice = choice;
 
     eventDb.put(evt).then(function(){
-      console.log("Event " + evt.title + " (" + evt._id + ") set to '" + evt.preferredChoice + "'")
+      console.log("Event " + evt.title + " (" + evt._id + ") set to '" + evt.preferredChoice + "'");
     });
-  })
-}
+  });
+};
 
 var toggleChoiceForEvent = function(eventId, choice){
   eventDb.get(eventId).then(function(evt){
@@ -165,33 +98,34 @@ var toggleChoiceForEvent = function(eventId, choice){
       evt.preferredChoice = undefined;
     }
     eventDb.put(evt).then(function(){
-      console.log("Event " + evt.title + " (" + evt._id + ") toggled to '" + evt.preferredChoice + "'")
+      console.log("Event " + evt.title + " (" + evt._id + ") toggled to '" + evt.preferredChoice + "'");
     });
-  })
+  });
 };
 
 $(document).keydown(function(e) {
   // Ctrl + g -> grind branch
   // Shift + c -> mark preferred choice
   // Ctrl + Shift + a -> auto pick opportunities
+  var hovered, last, storyText;
 
   if(e.which == 71 && e.ctrlKey) {
-    var hovered = document.querySelectorAll( ":hover" );
-    var last = hovered[hovered.length - 1];
-    var storyText = $(last).text();
+    hovered = document.querySelectorAll( ":hover" );
+    last = hovered[hovered.length - 1];
+    storyText = $(last).text();
     var nTimes = prompt("Grind " + storyText, "2");
 
-    if (nTimes != null) {
-      fl.doNTimes(parseInt(nTimes), storyText)
+    if (nTimes !== null) {
+      fl.doNTimes(parseInt(nTimes), storyText);
     }
   }
   else if (e.which == 67 && e.shiftKey) {
-    var hovered = document.querySelectorAll( ":hover" );
-    var last = hovered[hovered.length - 1];
+    hovered = document.querySelectorAll( ":hover" );
+    last = hovered[hovered.length - 1];
     if($j(last).attr('value') == "DISCARD") {
       var container = hovered[hovered.length - 2];
-      var storyText = $j(container).find('h3').text();
-      var eventId = $j(last).attr('onclick').match(/\?eventid=(\d+)/)[1]
+      storyText = $j(container).find('h3').text();
+      var eventId = $j(last).attr('onclick').match(/\?eventid=(\d+)/)[1];
 
       var doChoice = confirm("Toggle discard for '" + storyText + "' (" + eventId + ")?");
       if(doChoice){
@@ -205,14 +139,15 @@ $(document).keydown(function(e) {
 });
 
 var findQuality = function(branch_name) {
-}
+};
 
 $(document).keydown(function(e) {
     if(e.which == 79 && e.ctrlKey) {
-      console.log("pick optimal items then choose this")
+      console.log("pick optimal items then choose this");
     }
 });
 
+/* jshint ignore:start */
 function evalCS(source) {
   var coffeescript = CoffeeScript.compile(source.toString()).split("\n");
 
@@ -220,7 +155,7 @@ function evalCS(source) {
 }
 
 
-/* jshint ignore:start */
+
 var inline_src = (<><![CDATA[
 window.storyDB =
     events: {}
