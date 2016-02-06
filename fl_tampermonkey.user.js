@@ -56,114 +56,9 @@ qualitiesDb = new PouchDB('qualities');
 
 window.qs = dbQueries;
 
-fl.autoPickCard = function(){
-  var actOnCard = function(eventId){
-    return new Promise(function(resolve, reject){
-      fl.util.waitForAjax().then(function(){
-        eventDb.get(String(eventId)).then(function(dbEvt) {
-          if(dbEvt.preferredChoice){
-            if(dbEvt.preferredChoice == "discard"){
-              discardEl = $j('#cards li').has("input[onclick='beginEvent(" + eventId + ");']").children('input[value="DISCARD"]');
-              $(discardEl).click();
-              fl.util.waitForAjax().then(function() {
-                console.log("discard", dbEvt);
-                resolve({acted: true, reason: "discarded"});
-              });
-            }
-            else {
-              cardEl = $j('#cards li a').has("input[onclick='beginEvent(" + eventId + ");']").children('input');
-              $(cardEl).click();
-              fl.util.waitForAjax().then(function() {
-                fl.optThenChoose(dbEvt.preferredChoice).then(function(){
-                  fl.util.waitForAjax().then(function() {
-                    console.log("onwards!");
-                    $j('input[value="ONWARDS!"]').click();
-                    fl.util.waitForAjax().then(function(){
-                      resolve({acted: true, reason: "picked " + dbEvt.preferredChoice + " for " + dbEvt.title + " (" + dbEvt._id + ")"});
-                    });
-                  });
-                });
-              });
-            }
-          }
-          else {
-            resolve({acted: false, reason: "no preferred choice for " + dbEvt.title + " (" + dbEvt._id + ")"});
-          }
-        });
-      });
-    });
-  };
+fl.storyletFor = function(title) { return $j('div.storylet:contains("' + title + '")'); };
 
-  var actOnAvailableCards = function(){
-    return new Promise(function(resolve, reject) {
-      fl.util.waitForAjax().then(function(){
-        var acted = false;
-        var lastReason = "<default>";
-        var cards = fl.scraper.visibleCards();
-        var nCards = cards.length;
-        var maybeActOnN = function(n) {
-          if(!acted){
-            actOnCard(cards[n]).then(function(result){
-              acted = result.acted;
-              lastReason = result.reason;
-
-              if(!acted && (nCards > n + 1)){
-                maybeActOnN(n + 1);
-              }
-              else if (nCards > n + 1) {
-                resolve({acted: acted, reason: "no cards"});
-              }
-              else {
-                resolve({acted: acted, reason: lastReason});
-              }
-            });
-          }
-          else {
-            resolve({acted: acted, reason: lastReason});
-          }
-        };
-
-        maybeActOnN(0);
-      });
-    });
-  };
-
-  if($j('#cards li a').length > 0){
-    return actOnAvailableCards();
-  }
-  else if($j('#cardDeckLink')[0]){
-    $j('#cardDeckLink').click();
-    return actOnAvailableCards();
-  }
-  else{
-    return new Promise(function(res,rej){ res({acted: false, reason: "no cards"});});
-  }
-};
-
-fl.autoCards = function(){
-  fl.autoPickCard().then(function(result){
-    if(result.acted){
-      fl.util.waitForAjax().then(function(){
-        fl.autoCards();
-      });
-    }
-    else {
-      fl.util.waitForAjax().then(function(){
-        if(fl.scraper.visibleCards().length < 3 && $j('#cardDeckLink')[0]){
-          $j('#cardDeckLink').click();
-          fl.util.waitForAjax().then(fl.autoCards);
-        }
-        else{
-          console.log("autoCards finished because: " + result.reason);
-        }
-      })
-    }
-  })
-}
-
-fl.storyletFor = function(title) { return $j('div.storylet:contains("' + title + '")') }
-
-fl.challengElForStorylet = function(storylet){ return storylet.find('.challenge.cf') }
+fl.challengElForStorylet = function(storylet){ return storylet.find('.challenge.cf'); };
 
 fl.chooseBest = function(attribute) {
     return new Promise(function(resolve, reject){
@@ -192,7 +87,7 @@ fl.chooseBest = function(attribute) {
         });
       });
     });
-}
+};
 
 fl.qualityAndOddsForStorylet = function(title) {
   var challengeTxt = fl.challengElForStorylet(fl.storyletFor(title)).text();
