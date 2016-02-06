@@ -27,6 +27,12 @@ link.href = 'https://rawgit.com/jackmoore/colorbox/master/example1/colorbox.css'
 document.getElementsByTagName("HEAD")[0].appendChild(link);
 
 var remoteDb; //set to address of a couchdb instance for replication
+var remoteAddress = localStorage.getItem("remoteDb");
+if(remoteAddress == "local"){
+} else {
+  remoteDb = remoteAddress;
+}
+
 branchDb = new PouchDB('branches');
 eventDb = new PouchDB('events');
 if(remoteDb){
