@@ -13,9 +13,9 @@
 // @require https://raw.githubusercontent.com/caldwell/renderjson/master/renderjson.js
 // @require http://code.jquery.com/jquery-1.11.3.min.js
 // @require https://raw.githubusercontent.com/jackmoore/colorbox/master/jquery.colorbox-min.js
-// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion_support/master/fl_optimize.js
-// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion_support/master/fl_scraper.js
-// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion_support/master/fl_dbops.js
+// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_optimize.js
+// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_scraper.js
+// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_dbops.js
 
 // ==/UserScript==
 window.$j = jQuery.noConflict(true);
@@ -28,8 +28,11 @@ document.getElementsByTagName("HEAD")[0].appendChild(link);
 
 var remoteDb; //set to address of a couchdb instance for replication
 var remoteAddress = localStorage.getItem("remoteDb");
+console.log("stored remote address is", remoteAddress)
 if(remoteAddress == "local"){
   console.log("using local db");
+} else if(remoteAddress != "undefined") {
+  remoteDb = remoteAddress;
 } else {
   var setAddress = prompt("Address for remote DB to sync with (leave blank use local db)");
   if(setAddress){
