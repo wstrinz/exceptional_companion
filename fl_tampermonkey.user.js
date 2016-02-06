@@ -28,10 +28,11 @@ document.getElementsByTagName("HEAD")[0].appendChild(link);
 
 var remoteDb; //set to address of a couchdb instance for replication
 var remoteAddress = localStorage.getItem("remoteDb");
-console.log("stored remote address is", remoteAddress)
+console.log("stored remote address is", remoteAddress);
 if(remoteAddress == "local"){
   console.log("using local db");
 } else if(remoteAddress != "undefined") {
+  console.log("using remote db", remoteAddress);
   remoteDb = remoteAddress;
 } else {
   var setAddress = prompt("Address for remote DB to sync with (leave blank use local db)");
