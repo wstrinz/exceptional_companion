@@ -7,7 +7,9 @@ Some scripts and hacks to help with [Fallen London][1]
 [1]: https://fallenlondon.storynexus.com
 
 ## Installation
-Add `fl_tampermonkey.js` as a TamperMonkey script.
+Install TamperMonkey, then get the script **[here](https://github.com/wstrinz/exceptional_companion/raw/master/fl_tampermonkey.user.js)**.
+
+Or manually add `fl_tampermonkey.user.js` to your scripts.
 
 ## Features
 - Click on qualities to choose optimal items
