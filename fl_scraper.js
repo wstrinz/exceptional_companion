@@ -4,7 +4,7 @@ fl.scraper = {
     return $('div.storylet_flavour_text h3').text().trim();
   },
   isResult: function () {
-    return !($('.quality_update_box').length === 0);
+    return ($('.quality_update_box').length !== 0);
   },
   isInvitation: function () {
     return !!$('.externalInviteButton')[0];
@@ -162,10 +162,16 @@ fl.scraper = {
 
     if(challengeTxt && challengeTxt.length > 0){
       var lines = challengeTxt.split("\n");
-      var result = _.map(lines, function(s){return s.trim();}).join(" ").match(/Your (\w+) quality gives you a (.*)% chance of success/);
-      var quality = result[1];
-      var odds = result[2];
-      return [quality, odds];
+      var result = _.map(lines, function(s){
+        return s.trim();
+      }).join(" ").match(/Your (\w+) quality gives you a (.*)% chance of success/);
+      if(result){
+        var quality = result[1];
+        var odds = result[2];
+        return [quality, odds];
+      } else {
+        return []
+      }
     }
     return undefined;
   }
