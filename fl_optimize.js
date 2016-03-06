@@ -275,18 +275,23 @@ var fl = {
     }
   },
 
-  autoCards: function(){
+  autoCards: function(dontDraw){
     fl.autoPickCard().then(function(result){
       if(result.acted){
         fl.util.waitForAjax().then(function(){
-          fl.autoCards();
+          fl.autoCards(dontDraw);
         });
       }
       else {
         fl.util.waitForAjax().then(function(){
           if(fl.scraper.visibleCards().length < 3 && $j('#cardDeckLink')[0]){
-            $j('#cardDeckLink').click();
-            fl.util.waitForAjax().then(fl.autoCards);
+            if(!dontDraw){
+              $j('#cardDeckLink').click();
+              fl.util.waitForAjax().then(fl.autoCards);
+            }
+            else {
+              console.log("autocards finished current set");
+            }
           }
           else{
             console.log("autoCards finished because: " + result.reason);
