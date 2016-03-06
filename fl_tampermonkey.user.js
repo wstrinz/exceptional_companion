@@ -133,8 +133,13 @@ $(document).keydown(function(e) {
       }
     }
   }
-  else if (e.which == 65 && e.shiftKey && e.ctrlKey) {
-    fl.autoCards();
+  else if (e.which == 65 && e.shiftKey) {
+    if(e.ctrlKey){
+      fl.autoCards();
+    }
+    else if(e.altKey){
+      fl.autoCards(false);
+    }
   }
 });
 
