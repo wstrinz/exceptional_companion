@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FL Optimize
 // @namespace    http://github.com/wstrinz/exceptional_companion
-// @version      0.3
+// @version      0.3.1
 // @description  Helps with fl
 // @author       Will Strinz
 // @match        http://fallenlondon.storynexus.com/Gap/*
