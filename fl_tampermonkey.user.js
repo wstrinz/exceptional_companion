@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         FL Optimize
+// @name         Exceptional Companion
 // @namespace    http://github.com/wstrinz/exceptional_companion
-// @version      0.3.1
+// @version      0.4.0_b1
 // @description  Helps with fl
 // @author       Will Strinz
 // @match        http://fallenlondon.storynexus.com/Gap/*
@@ -107,6 +107,7 @@ $(document).keydown(function(e) {
   // Ctrl + g -> grind branch
   // Shift + c -> mark preferred choice
   // Ctrl + Shift + a -> auto pick opportunities
+  // Alt + Shift + a -> auto pick opportunities, don't redraw
   var hovered, last, storyText;
 
   if(e.which == 71 && e.ctrlKey) {
@@ -259,7 +260,7 @@ captureDrawCards = ->
 fl.annotator =
   getShortDescription: (dbEvt) ->
     collapsedDesc = (shortDs) ->
-      if _.all(shortDs, (sd) -> sd == "Explored" || sd == "Inevitable")
+      if _.all(shortDs, (sd) -> sd != "Unknown")
         "Explored"
       else if _.any(shortDs, (sd) -> sd != "Unknown")
         "Partial"
@@ -298,6 +299,8 @@ fl.annotator =
         when 0
           if dbBranch.isSocial
             "Social"
+          else if dbBranch.subBranches.length > 0
+            "Transition"
           else
             "Unknown"
         when 1
@@ -327,6 +330,8 @@ fl.annotator =
         when 0
           if dbBranch.isSocial
             cs.social
+          else if dbBranch.subBranches.length > 0
+            cs.transition
           else
             cs.unexplored
         when 1
@@ -345,6 +350,7 @@ fl.annotator =
       full: 'rgba(8, 214, 76, 0.16)'
       unknown: 'rgba(228, 0, 25, 0.20)'
       social: 'rgba(8, 214, 76, 0.16)'
+      transition: 'rgba(8, 214, 76, 0.16)'
 
   annotateEvent: (eventId) ->
     eventEl = $j('.storylet').has("input[onclick='beginEvent(#{eventId});']")
