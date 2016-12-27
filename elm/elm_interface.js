@@ -7791,29 +7791,49 @@ var _elm_lang$html$Html$summary = _elm_lang$html$Html$node('summary');
 var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
 
-var _user$project$Hello$main = _elm_lang$virtual_dom$Native_VirtualDom.staticProgram(
-	A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$ul,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$li,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Here is div'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}),
-			_1: {ctor: '[]'}
-		}));
+var _user$project$Hello$update = F2(
+	function (msg, m) {
+		return m;
+	});
+var _user$project$Hello$view = function (m) {
+	var _p0 = m.currView;
+	if (_p0.ctor === 'Hidden') {
+		return _elm_lang$html$Html$text('nothing here');
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$ul,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$li,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Here is div again'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			});
+	}
+};
+var _user$project$Hello$Model = function (a) {
+	return {currView: a};
+};
+var _user$project$Hello$Shown = {ctor: 'Shown'};
+var _user$project$Hello$Hidden = {ctor: 'Hidden'};
+var _user$project$Hello$model = {currView: _user$project$Hello$Hidden};
+var _user$project$Hello$main = _elm_lang$html$Html$beginnerProgram(
+	{model: _user$project$Hello$model, view: _user$project$Hello$view, update: _user$project$Hello$update})();
+var _user$project$Hello$Something = {ctor: 'Something'};
+var _user$project$Hello$Noop = {ctor: 'Noop'};
 
 var Elm = {};
 Elm['Hello'] = Elm['Hello'] || {};

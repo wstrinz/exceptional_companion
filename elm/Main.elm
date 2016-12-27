@@ -3,8 +3,13 @@ module Hello exposing (..)
 import Html exposing (div, p, ul, li, text)
 
 
+type DisplayedState
+    = Hidden
+    | Shown
+
+
 type alias Model =
-    Int
+    { currView : DisplayedState }
 
 
 type Msg
@@ -14,17 +19,22 @@ type Msg
 
 view : Model -> Html.Html msg
 view m =
-    div []
-        [ ul []
-            [ li []
-                [ text "Here is div again" ]
-            ]
-        ]
+    case m.currView of
+        Hidden ->
+            text "nothing here"
+
+        Shown ->
+            div []
+                [ ul []
+                    [ li []
+                        [ text "Here is div again" ]
+                    ]
+                ]
 
 
 model : Model
 model =
-    0
+    { currView = Hidden }
 
 
 update : Msg -> Model -> Model
