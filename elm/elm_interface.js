@@ -7791,14 +7791,199 @@ var _elm_lang$html$Html$summary = _elm_lang$html$Html$node('summary');
 var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
 
-var _user$project$Hello$update = F2(
-	function (msg, m) {
-		return m;
+var _elm_lang$html$Html_Events$keyCode = A2(_elm_lang$core$Json_Decode$field, 'keyCode', _elm_lang$core$Json_Decode$int);
+var _elm_lang$html$Html_Events$targetChecked = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'target',
+		_1: {
+			ctor: '::',
+			_0: 'checked',
+			_1: {ctor: '[]'}
+		}
+	},
+	_elm_lang$core$Json_Decode$bool);
+var _elm_lang$html$Html_Events$targetValue = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'target',
+		_1: {
+			ctor: '::',
+			_0: 'value',
+			_1: {ctor: '[]'}
+		}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _elm_lang$html$Html_Events$defaultOptions = _elm_lang$virtual_dom$VirtualDom$defaultOptions;
+var _elm_lang$html$Html_Events$onWithOptions = _elm_lang$virtual_dom$VirtualDom$onWithOptions;
+var _elm_lang$html$Html_Events$on = _elm_lang$virtual_dom$VirtualDom$on;
+var _elm_lang$html$Html_Events$onFocus = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'focus',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onBlur = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'blur',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onSubmitOptions = _elm_lang$core$Native_Utils.update(
+	_elm_lang$html$Html_Events$defaultOptions,
+	{preventDefault: true});
+var _elm_lang$html$Html_Events$onSubmit = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'submit',
+		_elm_lang$html$Html_Events$onSubmitOptions,
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onCheck = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _elm_lang$html$Html_Events$onInput = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'input',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetValue));
+};
+var _elm_lang$html$Html_Events$onMouseOut = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseout',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseOver = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseover',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseLeave = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseleave',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseEnter = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseenter',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseUp = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseup',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseDown = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mousedown',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onDoubleClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'dblclick',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'click',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$Options = F2(
+	function (a, b) {
+		return {stopPropagation: a, preventDefault: b};
 	});
+
+var _user$project$Ports$choosePlan = _elm_lang$core$Native_Platform.outgoingPort(
+	'choosePlan',
+	function (v) {
+		return v;
+	});
+var _user$project$Ports$tryAgain = _elm_lang$core$Native_Platform.outgoingPort(
+	'tryAgain',
+	function (v) {
+		return v;
+	});
+
+var _user$project$Types$Model = function (a) {
+	return {currView: a};
+};
+var _user$project$Types$Shown = {ctor: 'Shown'};
+var _user$project$Types$Hidden = {ctor: 'Hidden'};
+var _user$project$Types$TryAgain = {ctor: 'TryAgain'};
+var _user$project$Types$ChoosePlan = {ctor: 'ChoosePlan'};
+var _user$project$Types$Noop = {ctor: 'Noop'};
+
+var _user$project$Hello$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'Noop':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'ChoosePlan':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Ports$choosePlan('dummystring')
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Ports$tryAgain('dummystring')
+				};
+		}
+	});
+var _user$project$Hello$initialModel = {currView: _user$project$Types$Hidden};
 var _user$project$Hello$view = function (m) {
-	var _p0 = m.currView;
-	if (_p0.ctor === 'Hidden') {
-		return _elm_lang$html$Html$text('nothing here');
+	var _p1 = m.currView;
+	if (_p1.ctor === 'Hidden') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$button,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$ChoosePlan),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('choose'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$TryAgain),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('try'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			});
 	} else {
 		return A2(
 			_elm_lang$html$Html$div,
@@ -7824,21 +8009,28 @@ var _user$project$Hello$view = function (m) {
 			});
 	}
 };
-var _user$project$Hello$Model = function (a) {
-	return {currView: a};
-};
-var _user$project$Hello$Shown = {ctor: 'Shown'};
-var _user$project$Hello$Hidden = {ctor: 'Hidden'};
-var _user$project$Hello$model = {currView: _user$project$Hello$Hidden};
-var _user$project$Hello$main = _elm_lang$html$Html$beginnerProgram(
-	{model: _user$project$Hello$model, view: _user$project$Hello$view, update: _user$project$Hello$update})();
-var _user$project$Hello$Something = {ctor: 'Something'};
-var _user$project$Hello$Noop = {ctor: 'Noop'};
+var _user$project$Hello$main = _elm_lang$html$Html$program(
+	{
+		init: {ctor: '_Tuple2', _0: _user$project$Hello$initialModel, _1: _elm_lang$core$Platform_Cmd$none},
+		view: _user$project$Hello$view,
+		update: _user$project$Hello$update,
+		subscriptions: function (_p2) {
+			return _elm_lang$core$Platform_Sub$none;
+		}
+	})();
 
 var Elm = {};
 Elm['Hello'] = Elm['Hello'] || {};
 if (typeof _user$project$Hello$main !== 'undefined') {
     _user$project$Hello$main(Elm['Hello'], 'Hello', undefined);
+}
+Elm['Ports'] = Elm['Ports'] || {};
+if (typeof _user$project$Ports$main !== 'undefined') {
+    _user$project$Ports$main(Elm['Ports'], 'Ports', undefined);
+}
+Elm['Types'] = Elm['Types'] || {};
+if (typeof _user$project$Types$main !== 'undefined') {
+    _user$project$Types$main(Elm['Types'], 'Types', undefined);
 }
 
 if (typeof define === "function" && define['amd'])

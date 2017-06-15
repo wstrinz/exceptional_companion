@@ -1,28 +1,21 @@
 module Hello exposing (..)
 
 import Html exposing (div, p, ul, li, text)
+import Html.Events exposing (onClick)
+import Ports
+import Types exposing (..)
 
 
-type DisplayedState
-    = Hidden
-    | Shown
-
-
-type alias Model =
-    { currView : DisplayedState }
-
-
-type Msg
-    = Noop
-    | Something
-
-
-view : Model -> Html.Html msg
+view : Model -> Html.Html Msg
 view m =
     case m.currView of
         Hidden ->
-            text "nothing here"
+            div []
+                [ Html.button [ onClick ChoosePlan ] [ text "choose" ]
+                , Html.button [ onClick TryAgain ] [ text "try" ]
+                ]
 
+        -- text "nothing here"
         Shown ->
             div []
                 [ ul []
@@ -32,20 +25,33 @@ view m =
                 ]
 
 
-model : Model
-model =
+initialModel : Model
+initialModel =
     { currView = Hidden }
 
 
-update : Msg -> Model -> Model
-update msg m =
-    m
+
+-- update : Msg -> Model -> Model
+
+
+update : Msg -> Model -> ( Model, Cmd msg )
+update msg model =
+    case msg of
+        Noop ->
+            ( model, Cmd.none )
+
+        ChoosePlan ->
+            ( model, Ports.choosePlan "dummystring" )
+
+        TryAgain ->
+            ( model, Ports.tryAgain "dummystring" )
 
 
 main : Program Never Model Msg
 main =
-    Html.beginnerProgram
-        { model = model
+    Html.program
+        { init = ( initialModel, Cmd.none )
         , view = view
         , update = update
+        , subscriptions = \_ -> Sub.none
         }
