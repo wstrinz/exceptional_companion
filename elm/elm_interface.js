@@ -8032,8 +8032,8 @@ var _user$project$Hello$main = _elm_lang$html$Html$program(
 		init: {ctor: '_Tuple2', _0: _user$project$Hello$initialModel, _1: _elm_lang$core$Platform_Cmd$none},
 		view: _user$project$Hello$view,
 		update: _user$project$Hello$update,
-		subscriptions: function (_p3) {
-			return _elm_lang$core$Platform_Sub$none;
+		subscriptions: function (m) {
+			return _user$project$Ports$nextAction(_user$project$Types$NextAction);
 		}
 	})();
 
