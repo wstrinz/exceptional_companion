@@ -11,11 +11,10 @@ view m =
     case m.currView of
         Hidden ->
             div []
-                [ Html.button [ onClick ChoosePlan ] [ text "choose" ]
-                , Html.button [ onClick TryAgain ] [ text "try" ]
+                [ Html.button [ onClick <| QueueAction ChoosePlan ] [ text "choose" ]
+                , Html.button [ onClick <| QueueAction TryAgain ] [ text "try" ]
                 ]
 
-        -- text "nothing here"
         Shown ->
             div []
                 [ ul []
@@ -30,20 +29,21 @@ initialModel =
     { currView = Hidden }
 
 
-
--- update : Msg -> Model -> Model
-
-
 update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
         Noop ->
             ( model, Cmd.none )
 
-        ChoosePlan ->
-            ( model, Ports.choosePlan "dummystring" )
+        QueueAction act ->
+            case act of
+                ChoosePlan ->
+                    ( model, Ports.choosePlan "dummystring" )
 
-        TryAgain ->
+                TryAgain ->
+                    ( model, Ports.tryAgain "dummystring" )
+
+        NextAction str ->
             ( model, Ports.tryAgain "dummystring" )
 
 

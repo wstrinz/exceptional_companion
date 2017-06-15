@@ -10,7 +10,12 @@ type alias Model =
     { currView : DisplayedState }
 
 
+type Action
+    = ChoosePlan
+    | TryAgain
+
+
 type Msg
     = Noop
-    | ChoosePlan
-    | TryAgain
+    | QueueAction Action
+    | NextAction String

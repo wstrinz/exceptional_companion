@@ -7916,6 +7916,7 @@ var _user$project$Ports$tryAgain = _elm_lang$core$Native_Platform.outgoingPort(
 	function (v) {
 		return v;
 	});
+var _user$project$Ports$nextAction = _elm_lang$core$Native_Platform.incomingPort('nextAction', _elm_lang$core$Json_Decode$string);
 
 var _user$project$Types$Model = function (a) {
 	return {currView: a};
@@ -7924,6 +7925,12 @@ var _user$project$Types$Shown = {ctor: 'Shown'};
 var _user$project$Types$Hidden = {ctor: 'Hidden'};
 var _user$project$Types$TryAgain = {ctor: 'TryAgain'};
 var _user$project$Types$ChoosePlan = {ctor: 'ChoosePlan'};
+var _user$project$Types$NextAction = function (a) {
+	return {ctor: 'NextAction', _0: a};
+};
+var _user$project$Types$QueueAction = function (a) {
+	return {ctor: 'QueueAction', _0: a};
+};
 var _user$project$Types$Noop = {ctor: 'Noop'};
 
 var _user$project$Hello$update = F2(
@@ -7932,12 +7939,21 @@ var _user$project$Hello$update = F2(
 		switch (_p0.ctor) {
 			case 'Noop':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-			case 'ChoosePlan':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Ports$choosePlan('dummystring')
-				};
+			case 'QueueAction':
+				var _p1 = _p0._0;
+				if (_p1.ctor === 'ChoosePlan') {
+					return {
+						ctor: '_Tuple2',
+						_0: model,
+						_1: _user$project$Ports$choosePlan('dummystring')
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: model,
+						_1: _user$project$Ports$tryAgain('dummystring')
+					};
+				}
 			default:
 				return {
 					ctor: '_Tuple2',
@@ -7948,8 +7964,8 @@ var _user$project$Hello$update = F2(
 	});
 var _user$project$Hello$initialModel = {currView: _user$project$Types$Hidden};
 var _user$project$Hello$view = function (m) {
-	var _p1 = m.currView;
-	if (_p1.ctor === 'Hidden') {
+	var _p2 = m.currView;
+	if (_p2.ctor === 'Hidden') {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -7959,7 +7975,8 @@ var _user$project$Hello$view = function (m) {
 					_elm_lang$html$Html$button,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$ChoosePlan),
+						_0: _elm_lang$html$Html_Events$onClick(
+							_user$project$Types$QueueAction(_user$project$Types$ChoosePlan)),
 						_1: {ctor: '[]'}
 					},
 					{
@@ -7973,7 +7990,8 @@ var _user$project$Hello$view = function (m) {
 						_elm_lang$html$Html$button,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$TryAgain),
+							_0: _elm_lang$html$Html_Events$onClick(
+								_user$project$Types$QueueAction(_user$project$Types$TryAgain)),
 							_1: {ctor: '[]'}
 						},
 						{
@@ -8014,7 +8032,7 @@ var _user$project$Hello$main = _elm_lang$html$Html$program(
 		init: {ctor: '_Tuple2', _0: _user$project$Hello$initialModel, _1: _elm_lang$core$Platform_Cmd$none},
 		view: _user$project$Hello$view,
 		update: _user$project$Hello$update,
-		subscriptions: function (_p2) {
+		subscriptions: function (_p3) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})();
