@@ -3741,6 +3741,203 @@ var _elm_lang$core$Result$fromMaybe = F2(
 		}
 	});
 
+var _elm_lang$core$Task$onError = _elm_lang$core$Native_Scheduler.onError;
+var _elm_lang$core$Task$andThen = _elm_lang$core$Native_Scheduler.andThen;
+var _elm_lang$core$Task$spawnCmd = F2(
+	function (router, _p0) {
+		var _p1 = _p0;
+		return _elm_lang$core$Native_Scheduler.spawn(
+			A2(
+				_elm_lang$core$Task$andThen,
+				_elm_lang$core$Platform$sendToApp(router),
+				_p1._0));
+	});
+var _elm_lang$core$Task$fail = _elm_lang$core$Native_Scheduler.fail;
+var _elm_lang$core$Task$mapError = F2(
+	function (convert, task) {
+		return A2(
+			_elm_lang$core$Task$onError,
+			function (_p2) {
+				return _elm_lang$core$Task$fail(
+					convert(_p2));
+			},
+			task);
+	});
+var _elm_lang$core$Task$succeed = _elm_lang$core$Native_Scheduler.succeed;
+var _elm_lang$core$Task$map = F2(
+	function (func, taskA) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return _elm_lang$core$Task$succeed(
+					func(a));
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map2 = F3(
+	function (func, taskA, taskB) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return _elm_lang$core$Task$succeed(
+							A2(func, a, b));
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map3 = F4(
+	function (func, taskA, taskB, taskC) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (c) {
+								return _elm_lang$core$Task$succeed(
+									A3(func, a, b, c));
+							},
+							taskC);
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map4 = F5(
+	function (func, taskA, taskB, taskC, taskD) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (c) {
+								return A2(
+									_elm_lang$core$Task$andThen,
+									function (d) {
+										return _elm_lang$core$Task$succeed(
+											A4(func, a, b, c, d));
+									},
+									taskD);
+							},
+							taskC);
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map5 = F6(
+	function (func, taskA, taskB, taskC, taskD, taskE) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (c) {
+								return A2(
+									_elm_lang$core$Task$andThen,
+									function (d) {
+										return A2(
+											_elm_lang$core$Task$andThen,
+											function (e) {
+												return _elm_lang$core$Task$succeed(
+													A5(func, a, b, c, d, e));
+											},
+											taskE);
+									},
+									taskD);
+							},
+							taskC);
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$sequence = function (tasks) {
+	var _p3 = tasks;
+	if (_p3.ctor === '[]') {
+		return _elm_lang$core$Task$succeed(
+			{ctor: '[]'});
+	} else {
+		return A3(
+			_elm_lang$core$Task$map2,
+			F2(
+				function (x, y) {
+					return {ctor: '::', _0: x, _1: y};
+				}),
+			_p3._0,
+			_elm_lang$core$Task$sequence(_p3._1));
+	}
+};
+var _elm_lang$core$Task$onEffects = F3(
+	function (router, commands, state) {
+		return A2(
+			_elm_lang$core$Task$map,
+			function (_p4) {
+				return {ctor: '_Tuple0'};
+			},
+			_elm_lang$core$Task$sequence(
+				A2(
+					_elm_lang$core$List$map,
+					_elm_lang$core$Task$spawnCmd(router),
+					commands)));
+	});
+var _elm_lang$core$Task$init = _elm_lang$core$Task$succeed(
+	{ctor: '_Tuple0'});
+var _elm_lang$core$Task$onSelfMsg = F3(
+	function (_p7, _p6, _p5) {
+		return _elm_lang$core$Task$succeed(
+			{ctor: '_Tuple0'});
+	});
+var _elm_lang$core$Task$command = _elm_lang$core$Native_Platform.leaf('Task');
+var _elm_lang$core$Task$Perform = function (a) {
+	return {ctor: 'Perform', _0: a};
+};
+var _elm_lang$core$Task$perform = F2(
+	function (toMessage, task) {
+		return _elm_lang$core$Task$command(
+			_elm_lang$core$Task$Perform(
+				A2(_elm_lang$core$Task$map, toMessage, task)));
+	});
+var _elm_lang$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return _elm_lang$core$Task$command(
+			_elm_lang$core$Task$Perform(
+				A2(
+					_elm_lang$core$Task$onError,
+					function (_p8) {
+						return _elm_lang$core$Task$succeed(
+							resultToMessage(
+								_elm_lang$core$Result$Err(_p8)));
+					},
+					A2(
+						_elm_lang$core$Task$andThen,
+						function (_p9) {
+							return _elm_lang$core$Task$succeed(
+								resultToMessage(
+									_elm_lang$core$Result$Ok(_p9)));
+						},
+						task))));
+	});
+var _elm_lang$core$Task$cmdMap = F2(
+	function (tagger, _p10) {
+		var _p11 = _p10;
+		return _elm_lang$core$Task$Perform(
+			A2(_elm_lang$core$Task$map, tagger, _p11._0));
+	});
+_elm_lang$core$Native_Platform.effectManagers['Task'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Task$init, onEffects: _elm_lang$core$Task$onEffects, onSelfMsg: _elm_lang$core$Task$onSelfMsg, tag: 'cmd', cmdMap: _elm_lang$core$Task$cmdMap};
+
 //import Native.Utils //
 
 var _elm_lang$core$Native_Debug = function() {
@@ -7918,9 +8115,10 @@ var _user$project$Ports$tryAgain = _elm_lang$core$Native_Platform.outgoingPort(
 	});
 var _user$project$Ports$nextAction = _elm_lang$core$Native_Platform.incomingPort('nextAction', _elm_lang$core$Json_Decode$string);
 
-var _user$project$Types$Model = function (a) {
-	return {currView: a};
-};
+var _user$project$Types$Model = F3(
+	function (a, b, c) {
+		return {currView: a, actions: b, acting: c};
+	});
 var _user$project$Types$Shown = {ctor: 'Shown'};
 var _user$project$Types$Hidden = {ctor: 'Hidden'};
 var _user$project$Types$TryAgain = {ctor: 'TryAgain'};
@@ -7933,39 +8131,46 @@ var _user$project$Types$QueueAction = function (a) {
 };
 var _user$project$Types$Noop = {ctor: 'Noop'};
 
-var _user$project$Hello$update = F2(
-	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
-			case 'Noop':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-			case 'QueueAction':
-				var _p1 = _p0._0;
-				if (_p1.ctor === 'ChoosePlan') {
-					return {
-						ctor: '_Tuple2',
-						_0: model,
-						_1: _user$project$Ports$choosePlan('dummystring')
-					};
-				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: model,
-						_1: _user$project$Ports$tryAgain('dummystring')
-					};
-				}
-			default:
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Ports$tryAgain('dummystring')
-				};
-		}
+var _user$project$Hello$grindAction = F2(
+	function (nTimes, action) {
+		return A2(
+			_elm_lang$core$List$intersperse,
+			_user$project$Types$TryAgain,
+			A2(_elm_lang$core$List$repeat, nTimes, action));
 	});
-var _user$project$Hello$initialModel = {currView: _user$project$Types$Hidden};
+var _user$project$Hello$queueActionsToModel = F2(
+	function (actionList, model) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				actions: _elm_lang$core$List$concat(
+					{
+						ctor: '::',
+						_0: model.actions,
+						_1: {
+							ctor: '::',
+							_0: actionList,
+							_1: {ctor: '[]'}
+						}
+					})
+			});
+	});
+var _user$project$Hello$cmdForAction = function (action) {
+	var _p0 = action;
+	if (_p0.ctor === 'ChoosePlan') {
+		return _user$project$Ports$choosePlan('dummystring');
+	} else {
+		return _user$project$Ports$tryAgain('dummystring');
+	}
+};
+var _user$project$Hello$initialModel = {
+	currView: _user$project$Types$Hidden,
+	actions: {ctor: '[]'},
+	acting: false
+};
 var _user$project$Hello$view = function (m) {
-	var _p2 = m.currView;
-	if (_p2.ctor === 'Hidden') {
+	var _p1 = m.currView;
+	if (_p1.ctor === 'Hidden') {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -7976,7 +8181,12 @@ var _user$project$Hello$view = function (m) {
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html_Events$onClick(
-							_user$project$Types$QueueAction(_user$project$Types$ChoosePlan)),
+							_user$project$Types$QueueAction(
+								{
+									ctor: '::',
+									_0: _user$project$Types$ChoosePlan,
+									_1: {ctor: '[]'}
+								})),
 						_1: {ctor: '[]'}
 					},
 					{
@@ -7991,7 +8201,12 @@ var _user$project$Hello$view = function (m) {
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html_Events$onClick(
-								_user$project$Types$QueueAction(_user$project$Types$TryAgain)),
+								_user$project$Types$QueueAction(
+									{
+										ctor: '::',
+										_0: _user$project$Types$TryAgain,
+										_1: {ctor: '[]'}
+									})),
 							_1: {ctor: '[]'}
 						},
 						{
@@ -7999,7 +8214,24 @@ var _user$project$Hello$view = function (m) {
 							_0: _elm_lang$html$Html$text('try'),
 							_1: {ctor: '[]'}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$button,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onClick(
+									_user$project$Types$QueueAction(
+										A2(_user$project$Hello$grindAction, 5, _user$project$Types$ChoosePlan))),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('grind'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
 				}
 			});
 	} else {
@@ -8027,6 +8259,67 @@ var _user$project$Hello$view = function (m) {
 			});
 	}
 };
+var _user$project$Hello$send = function (msg) {
+	return A2(
+		_elm_lang$core$Task$perform,
+		_elm_lang$core$Basics$identity,
+		_elm_lang$core$Task$succeed(msg));
+};
+var _user$project$Hello$nextActionCmdIfNotRunning = function (model) {
+	return model.acting ? _elm_lang$core$Platform_Cmd$none : _user$project$Hello$send(
+		_user$project$Types$NextAction('dummy'));
+};
+var _user$project$Hello$update = F2(
+	function (msg, model) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
+			case 'Noop':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'QueueAction':
+				var newModel = A2(_user$project$Hello$queueActionsToModel, _p2._0, model);
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						newModel,
+						{acting: true}),
+					_1: _user$project$Hello$nextActionCmdIfNotRunning(model)
+				};
+			default:
+				var newActions = A2(
+					_elm_lang$core$Maybe$withDefault,
+					{ctor: '[]'},
+					_elm_lang$core$List$tail(model.actions));
+				var _p3 = function () {
+					var _p4 = _elm_lang$core$List$head(model.actions);
+					if (_p4.ctor === 'Nothing') {
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Platform_Cmd$none,
+							_1: _elm_lang$core$Native_Utils.update(
+								model,
+								{acting: false})
+						};
+					} else {
+						return {
+							ctor: '_Tuple2',
+							_0: _user$project$Hello$cmdForAction(_p4._0),
+							_1: _elm_lang$core$Native_Utils.update(
+								model,
+								{acting: true})
+						};
+					}
+				}();
+				var cmd = _p3._0;
+				var newModel = _p3._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						newModel,
+						{actions: newActions}),
+					_1: cmd
+				};
+		}
+	});
 var _user$project$Hello$main = _elm_lang$html$Html$program(
 	{
 		init: {ctor: '_Tuple2', _0: _user$project$Hello$initialModel, _1: _elm_lang$core$Platform_Cmd$none},

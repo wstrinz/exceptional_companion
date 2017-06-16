@@ -7,7 +7,7 @@ type DisplayedState
 
 
 type alias Model =
-    { currView : DisplayedState }
+    { currView : DisplayedState, actions : List Action, acting : Bool }
 
 
 type Action
@@ -17,5 +17,5 @@ type Action
 
 type Msg
     = Noop
-    | QueueAction Action
+    | QueueAction (List Action)
     | NextAction String
