@@ -7,7 +7,11 @@ type DisplayedState
 
 
 type alias Model =
-    { currView : DisplayedState, actions : List Action, acting : Bool }
+    { currView : DisplayedState
+    , actions : List Action
+    , acting : Bool
+    , grindCount : Int
+    }
 
 
 type Action
@@ -19,3 +23,4 @@ type Msg
     = Noop
     | QueueAction (List Action)
     | NextAction String
+    | SetGrindCount String

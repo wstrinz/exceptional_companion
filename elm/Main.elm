@@ -1,7 +1,8 @@
 module Hello exposing (..)
 
 import Html exposing (div, p, ul, li, text)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
+import Html.Attributes exposing (placeholder)
 import Ports
 import Task
 import Types exposing (..)
@@ -20,7 +21,8 @@ view m =
             div []
                 [ Html.button [ onClick <| QueueAction [ ChoosePlan ] ] [ text "choose" ]
                 , Html.button [ onClick <| QueueAction [ TryAgain ] ] [ text "try" ]
-                , Html.button [ onClick <| QueueAction <| grindAction 5 ChoosePlan ] [ text "grind" ]
+                , Html.button [ onClick <| QueueAction <| grindAction m.grindCount ChoosePlan ] [ text "grind" ]
+                , Html.input [ placeholder (toString m.grindCount), onInput SetGrindCount ] []
                 ]
 
         Shown ->
@@ -37,6 +39,7 @@ initialModel =
     { currView = Hidden
     , actions = []
     , acting = False
+    , grindCount = 5
     }
 
 
@@ -79,17 +82,25 @@ update msg model =
         NextAction str ->
             let
                 ( cmd, newModel ) =
-                    case List.head model.actions of
-                        Nothing ->
+                    case model.actions of
+                        [] ->
                             ( Cmd.none, { model | acting = False } )
 
-                        Just action ->
+                        action :: rest ->
                             ( cmdForAction action, { model | acting = True } )
 
                 newActions =
                     Maybe.withDefault [] <| List.tail model.actions
             in
                 ( { newModel | actions = newActions }, cmd )
+
+        SetGrindCount input ->
+            case String.toInt input of
+                Err msg ->
+                    Debug.crash (toString msg)
+
+                Ok n ->
+                    ( { model | grindCount = n }, Cmd.none )
 
 
 grindAction : Int -> Action -> List Action
