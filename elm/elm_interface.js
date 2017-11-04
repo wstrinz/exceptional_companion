@@ -1564,8 +1564,7 @@ function toString(v)
 	var type = typeof v;
 	if (type === 'function')
 	{
-		var name = v.func ? v.func.name : v.name;
-		return '<function' + (name === '' ? '' : ':') + name + '>';
+		return '<function>';
 	}
 
 	if (type === 'boolean')
@@ -2072,6 +2071,13 @@ var _elm_lang$core$List$sortWith = _elm_lang$core$Native_List.sortWith;
 var _elm_lang$core$List$sortBy = _elm_lang$core$Native_List.sortBy;
 var _elm_lang$core$List$sort = function (xs) {
 	return A2(_elm_lang$core$List$sortBy, _elm_lang$core$Basics$identity, xs);
+};
+var _elm_lang$core$List$singleton = function (value) {
+	return {
+		ctor: '::',
+		_0: value,
+		_1: {ctor: '[]'}
+	};
 };
 var _elm_lang$core$List$drop = F2(
 	function (n, list) {
@@ -3520,15 +3526,8 @@ function setupIncomingPort(name, callback)
 		sentBeforeInit.push(value);
 	}
 
-	function postInitSend(incomingValue)
+	function postInitSend(value)
 	{
-		var result = A2(_elm_lang$core$Json_Decode$decodeValue, converter, incomingValue);
-		if (result.ctor === 'Err')
-		{
-			throw new Error('Trying to send an unexpected type of value through port `' + name + '`:\n' + result._0);
-		}
-
-		var value = result._0;
 		var temp = subs;
 		while (temp.ctor !== '[]')
 		{
@@ -3539,7 +3538,13 @@ function setupIncomingPort(name, callback)
 
 	function send(incomingValue)
 	{
-		currentSend(incomingValue);
+		var result = A2(_elm_lang$core$Json_Decode$decodeValue, converter, incomingValue);
+		if (result.ctor === 'Err')
+		{
+			throw new Error('Trying to send an unexpected type of value through port `' + name + '`:\n' + result._0);
+		}
+
+		currentSend(result._0);
 	}
 
 	return { send: send };
@@ -4160,7 +4165,7 @@ function endsWith(sub, str)
 function indexes(sub, str)
 {
 	var subLen = sub.length;
-	
+
 	if (subLen < 1)
 	{
 		return _elm_lang$core$Native_List.Nil;
@@ -4173,74 +4178,78 @@ function indexes(sub, str)
 	{
 		is.push(i);
 		i = i + subLen;
-	}	
-	
+	}
+
 	return _elm_lang$core$Native_List.fromArray(is);
 }
+
 
 function toInt(s)
 {
 	var len = s.length;
+
+	// if empty
 	if (len === 0)
 	{
-		return _elm_lang$core$Result$Err("could not convert string '" + s + "' to an Int" );
+		return intErr(s);
 	}
-	var start = 0;
-	if (s[0] === '-')
+
+	// if hex
+	var c = s[0];
+	if (c === '0' && s[1] === 'x')
 	{
-		if (len === 1)
+		for (var i = 2; i < len; ++i)
 		{
-			return _elm_lang$core$Result$Err("could not convert string '" + s + "' to an Int" );
+			var c = s[i];
+			if (('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'))
+			{
+				continue;
+			}
+			return intErr(s);
 		}
-		start = 1;
+		return _elm_lang$core$Result$Ok(parseInt(s, 16));
 	}
-	for (var i = start; i < len; ++i)
+
+	// is decimal
+	if (c > '9' || (c < '0' && c !== '-' && c !== '+'))
+	{
+		return intErr(s);
+	}
+	for (var i = 1; i < len; ++i)
 	{
 		var c = s[i];
 		if (c < '0' || '9' < c)
 		{
-			return _elm_lang$core$Result$Err("could not convert string '" + s + "' to an Int" );
+			return intErr(s);
 		}
 	}
+
 	return _elm_lang$core$Result$Ok(parseInt(s, 10));
 }
 
+function intErr(s)
+{
+	return _elm_lang$core$Result$Err("could not convert string '" + s + "' to an Int");
+}
+
+
 function toFloat(s)
 {
-	var len = s.length;
-	if (len === 0)
+	// check if it is a hex, octal, or binary number
+	if (s.length === 0 || /[\sxbo]/.test(s))
 	{
-		return _elm_lang$core$Result$Err("could not convert string '" + s + "' to a Float" );
+		return floatErr(s);
 	}
-	var start = 0;
-	if (s[0] === '-')
-	{
-		if (len === 1)
-		{
-			return _elm_lang$core$Result$Err("could not convert string '" + s + "' to a Float" );
-		}
-		start = 1;
-	}
-	var dotCount = 0;
-	for (var i = start; i < len; ++i)
-	{
-		var c = s[i];
-		if ('0' <= c && c <= '9')
-		{
-			continue;
-		}
-		if (c === '.')
-		{
-			dotCount += 1;
-			if (dotCount <= 1)
-			{
-				continue;
-			}
-		}
-		return _elm_lang$core$Result$Err("could not convert string '" + s + "' to a Float" );
-	}
-	return _elm_lang$core$Result$Ok(parseFloat(s));
+	var n = +s;
+	// faster isNaN check
+	return n === n ? _elm_lang$core$Result$Ok(n) : floatErr(s);
 }
+
+function floatErr(s)
+{
+	return _elm_lang$core$Result$Err("could not convert string '" + s + "' to a Float");
+}
+
 
 function toList(str)
 {
@@ -5480,11 +5489,6 @@ function badToString(problem)
 				problem = problem.rest;
 				break;
 
-			case 'index':
-				context += '[' + problem.index + ']';
-				problem = problem.rest;
-				break;
-
 			case 'oneOf':
 				var problems = problem.problems;
 				for (var i = 0; i < problems.length; i++)
@@ -6212,9 +6216,9 @@ function on(name, options, decoder)
 
 function equalEvents(a, b)
 {
-	if (!a.options === b.options)
+	if (a.options !== b.options)
 	{
-		if (a.stopPropagation !== b.stopPropagation || a.preventDefault !== b.preventDefault)
+		if (a.options.stopPropagation !== b.options.stopPropagation || a.options.preventDefault !== b.options.preventDefault)
 		{
 			return false;
 		}
@@ -7490,7 +7494,7 @@ function normalRenderer(parentNode, view)
 var rAF =
 	typeof requestAnimationFrame !== 'undefined'
 		? requestAnimationFrame
-		: function(callback) { callback(); };
+		: function(callback) { setTimeout(callback, 1000 / 60); };
 
 function makeStepper(domNode, view, initialVirtualNode, eventNode)
 {
@@ -8463,6 +8467,11 @@ var _user$project$Ports$tryAgain = _elm_lang$core$Native_Platform.outgoingPort(
 	function (v) {
 		return v;
 	});
+var _user$project$Ports$playCards = _elm_lang$core$Native_Platform.outgoingPort(
+	'playCards',
+	function (v) {
+		return v;
+	});
 var _user$project$Ports$nextAction = _elm_lang$core$Native_Platform.incomingPort('nextAction', _elm_lang$core$Json_Decode$string);
 
 var _user$project$Types$Model = F4(
@@ -8471,6 +8480,7 @@ var _user$project$Types$Model = F4(
 	});
 var _user$project$Types$Shown = {ctor: 'Shown'};
 var _user$project$Types$Hidden = {ctor: 'Hidden'};
+var _user$project$Types$PlayCards = {ctor: 'PlayCards'};
 var _user$project$Types$TryAgain = {ctor: 'TryAgain'};
 var _user$project$Types$ChoosePlan = {ctor: 'ChoosePlan'};
 var _user$project$Types$SetGrindCount = function (a) {
@@ -8510,10 +8520,13 @@ var _user$project$Hello$queueActionsToModel = F2(
 	});
 var _user$project$Hello$cmdForAction = function (action) {
 	var _p0 = action;
-	if (_p0.ctor === 'ChoosePlan') {
-		return _user$project$Ports$choosePlan('dummystring');
-	} else {
-		return _user$project$Ports$tryAgain('dummystring');
+	switch (_p0.ctor) {
+		case 'ChoosePlan':
+			return _user$project$Ports$choosePlan('dummystring');
+		case 'TryAgain':
+			return _user$project$Ports$tryAgain('dummystring');
+		default:
+			return _user$project$Ports$playCards('dummystring');
 	}
 };
 var _user$project$Hello$initialModel = {
@@ -8576,30 +8589,51 @@ var _user$project$Hello$view = function (m) {
 								ctor: '::',
 								_0: _elm_lang$html$Html_Events$onClick(
 									_user$project$Types$QueueAction(
-										A2(_user$project$Hello$grindAction, m.grindCount, _user$project$Types$ChoosePlan))),
+										{
+											ctor: '::',
+											_0: _user$project$Types$PlayCards,
+											_1: {ctor: '[]'}
+										})),
 								_1: {ctor: '[]'}
 							},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text('grind'),
+								_0: _elm_lang$html$Html$text('cards'),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$input,
+								_elm_lang$html$Html$button,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$placeholder(
-										_elm_lang$core$Basics$toString(m.grindCount)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onInput(_user$project$Types$SetGrindCount),
-										_1: {ctor: '[]'}
-									}
+									_0: _elm_lang$html$Html_Events$onClick(
+										_user$project$Types$QueueAction(
+											A2(_user$project$Hello$grindAction, m.grindCount, _user$project$Types$ChoosePlan))),
+									_1: {ctor: '[]'}
 								},
-								{ctor: '[]'}),
-							_1: {ctor: '[]'}
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('grind'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$input,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$placeholder(
+											_elm_lang$core$Basics$toString(m.grindCount)),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onInput(_user$project$Types$SetGrindCount),
+											_1: {ctor: '[]'}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {ctor: '[]'}
+							}
 						}
 					}
 				}
@@ -8694,8 +8728,8 @@ var _user$project$Hello$update = F2(
 					return _elm_lang$core$Native_Utils.crashCase(
 						'Hello',
 						{
-							start: {line: 98, column: 13},
-							end: {line: 103, column: 61}
+							start: {line: 102, column: 13},
+							end: {line: 107, column: 61}
 						},
 						_p5)(
 						_elm_lang$core$Basics$toString(_p5._0));
@@ -8724,14 +8758,6 @@ var Elm = {};
 Elm['Hello'] = Elm['Hello'] || {};
 if (typeof _user$project$Hello$main !== 'undefined') {
     _user$project$Hello$main(Elm['Hello'], 'Hello', undefined);
-}
-Elm['Ports'] = Elm['Ports'] || {};
-if (typeof _user$project$Ports$main !== 'undefined') {
-    _user$project$Ports$main(Elm['Ports'], 'Ports', undefined);
-}
-Elm['Types'] = Elm['Types'] || {};
-if (typeof _user$project$Types$main !== 'undefined') {
-    _user$project$Types$main(Elm['Types'], 'Types', undefined);
 }
 
 if (typeof define === "function" && define['amd'])

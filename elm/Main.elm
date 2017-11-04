@@ -21,6 +21,7 @@ view m =
             div []
                 [ Html.button [ onClick <| QueueAction [ ChoosePlan ] ] [ text "choose" ]
                 , Html.button [ onClick <| QueueAction [ TryAgain ] ] [ text "try" ]
+                , Html.button [ onClick <| QueueAction [ PlayCards ] ] [ text "cards" ]
                 , Html.button [ onClick <| QueueAction <| grindAction m.grindCount ChoosePlan ] [ text "grind" ]
                 , Html.input [ placeholder (toString m.grindCount), onInput SetGrindCount ] []
                 ]
@@ -51,6 +52,9 @@ cmdForAction action =
 
         TryAgain ->
             Ports.tryAgain "dummystring"
+
+        PlayCards ->
+            Ports.playCards "dummystring"
 
 
 nextActionCmdIfNotRunning : Model -> Cmd Msg

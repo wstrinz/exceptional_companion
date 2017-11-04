@@ -17,6 +17,7 @@ type alias Model =
 type Action
     = ChoosePlan
     | TryAgain
+    | PlayCards
 
 
 type Msg
