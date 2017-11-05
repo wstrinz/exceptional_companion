@@ -1,4 +1,4 @@
-// updated 6/16/2017
+// updated 11/4/2017
 // ==UserScript==
 // @name         Exceptional Companion 2
 // @namespace    http://github.com/wstrinz/exceptional_companion
@@ -12,8 +12,9 @@
 // @require https://raw.githubusercontent.com/lodash/lodash/3.8.0/lodash.js
 // @require https://cdn.rawgit.com/jprichardson/string.js/master/lib/string.min.js
 // @require http://code.jquery.com/jquery-1.11.3.min.js
-// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/elm/elm/elm_interface.js?v=0.6
+// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/elm/elm/elm_interface.js?v=0.7
 // @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_optimize.js?v=3.2
+// @require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_scraper.js?v=3.1
 // @require      https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.18.2/babel.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.js
 // ==/UserScript==
@@ -21,7 +22,6 @@
 
 // require https://raw.githubusercontent.com/jackmoore/colorbox/master/jquery.colorbox-min.js
 // require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_optimize.js?v=3.2
-// require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_scraper.js?v=3.1
 // require https://raw.githubusercontent.com/wstrinz/exceptional_companion/master/fl_dbops.js?v=3
 
 window.$j = jQuery.noConflict();
@@ -66,6 +66,14 @@ var inline_src = (<><![CDATA[
             $('input[value="ONWARDS!"').click();
         }
     };
+    let cards = function() {
+        let n = $("#cards li").length - $("#cards .hand-slot-empty").length;
+        if(n){
+            $("#cards li a.tooltip input")[0].click();
+        } else if (n === 0){
+            $('#cardDeckLink').click();
+        }
+    };
     $j(document).ready(() => {
         console.log('hello');
         console.log(window.fl);
@@ -82,6 +90,11 @@ var inline_src = (<><![CDATA[
         app.ports.tryAgain.subscribe(function(word) {
             console.log("again");
             tryAgain();
+            waitForAjax().then(() => app.ports.nextAction.send("blank"));
+        });
+        app.ports.playCards.subscribe(function(word) {
+            console.log("cards");
+            cards();
             waitForAjax().then(() => app.ports.nextAction.send("blank"));
         });
     });
@@ -124,3 +137,5 @@ drawOrCard = () => {
 
 doLoop = () => { a(); f.waitForAjax().then(() => {b(); waitForAjax().then(c)})}
 prayLoop = () => { a(); f.waitForAjax().then(() => {b(); waitForAjax().then(c)})}
+
+/* jshint ignore:end */
